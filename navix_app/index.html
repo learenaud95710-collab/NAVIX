@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NAVIX - Prototype V5</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="phone">
+
+    <section id="loginScreen" class="screen active">
+      <div class="brand">
+        <h1>NAVIX</h1>
+        <p>Livraison autonome de proximité</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button id="loginTab" class="auth-tab active" onclick="showAuthMode('login')">Connexion</button>
+        <button id="signupTab" class="auth-tab" onclick="showAuthMode('signup')">Créer un compte</button>
+        <button id="phoneTab" class="auth-tab" onclick="showAuthMode('phone')">Téléphone</button>
+      </div>
+
+      <div id="loginForm" class="card auth-form">
+        <h2>Connexion</h2>
+        <p class="muted">Connectez-vous avec votre email.</p>
+
+        <label>Email</label>
+        <input id="emailInput" type="email" placeholder="exemple@mail.com" />
+
+        <label>Mot de passe</label>
+        <input id="passwordInput" type="password" placeholder="••••••••" />
+
+        <button onclick="login()">Se connecter</button>
+      </div>
+
+      <div id="signupForm" class="card auth-form hidden">
+        <h2>Créer un compte</h2>
+        <p class="muted">Créez votre profil utilisateur NAVIX.</p>
+
+        <label>Nom complet</label>
+        <input id="signupNameInput" type="text" placeholder="Votre nom" />
+
+        <label>Email</label>
+        <input id="signupEmailInput" type="email" placeholder="exemple@mail.com" />
+
+        <label>Mot de passe</label>
+        <input id="signupPasswordInput" type="password" placeholder="Minimum 6 caractères" />
+
+        <label>Numéro de téléphone</label>
+        <input id="signupPhoneInput" type="tel" placeholder="+33 6 00 00 00 00" />
+
+        <button onclick="createAccount()">Créer mon compte</button>
+      </div>
+
+      <div id="phoneForm" class="card auth-form hidden">
+        <h2>Connexion téléphone</h2>
+        <p class="muted">Recevez un code SMS pour vous connecter.</p>
+
+        <label>Numéro de téléphone</label>
+        <input id="phoneInput" type="tel" placeholder="+33 6 00 00 00 00" />
+
+        <button onclick="sendSmsCode()">Recevoir le code SMS</button>
+        <p id="smsInfo" class="small"></p>
+      </div>
+    </section>
+
+    <section id="verifyScreen" class="screen">
+      <button class="back" onclick="showScreen('loginScreen')">←</button>
+      <h2>Vérification</h2>
+      <p class="muted center">Entrez le code reçu pour finaliser la connexion.</p>
+
+      <div class="card">
+        <label>Code à 6 chiffres</label>
+        <input id="otpInput" type="text" maxlength="6" placeholder="123456" />
+        <button onclick="verifyCode()">Valider</button>
+        <p id="otpHelp" class="small">Code simulé : 123456</p>
+      </div>
+    </section>
+
+    <section id="homeScreen" class="screen">
+      <div class="topbar">
+        <div class="brand">
+          <h1>NAVIX</h1>
+          <p id="connectedUserText">Utilisateur connecté</p>
+        </div>
+        <button class="logout-btn" onclick="logout()">Déconnexion</button>
+      </div>
+
+      <div class="card location-card">
+        <h3>Position actuelle</h3>
+        <p id="locationText" class="muted">Localisation non activée.</p>
+        <button onclick="getUserLocation()">Activer ma localisation</button>
+        <p class="small">NAVIX propose uniquement des commerces proches afin de limiter les trajets robot.</p>
+      </div>
+
+      <h2>Choisissez un service</h2>
+
+      <div class="service-card" onclick="selectService('restaurant')">
+        <div class="icon orange">🍔</div>
+        <h3>Restaurant / Fast-food</h3>
+        <p>Choisir un restaurant proche, consulter le menu et commander.</p>
+      </div>
+
+      <div class="service-card" onclick="selectService('courses')">
+        <div class="icon green">🛒</div>
+        <h3>Courses</h3>
+        <p>Choisir un commerce proche et remplir son panier.</p>
+      </div>
+
+      <div class="service-card" onclick="selectService('colis')">
+        <div class="icon blue">📦</div>
+        <h3>Livraison de colis</h3>
+        <p>Envoyer un colis sécurisé d’un point A à un point B.</p>
+      </div>
+    </section>
+
+    <section id="merchantScreen" class="screen">
+      <button class="back" onclick="showScreen('homeScreen')">←</button>
+      <h2 id="merchantTitle">Commerces proches</h2>
+      <p class="muted center">Rayon NAVIX : 1,5 km maximum.</p>
+      <div id="merchantList"></div>
+    </section>
+
+    <section id="catalogScreen" class="screen">
+      <button class="back" onclick="showScreen('merchantScreen')">←</button>
+      <h2 id="catalogTitle">Menu</h2>
+      <p id="catalogSubtitle" class="muted center"></p>
+
+      <div id="categoryTabs" class="tabs"></div>
+      <div id="productList"></div>
+
+      <div class="cart-bar">
+        <div>
+          <strong id="cartCount">0 article</strong>
+          <p id="cartTotal" class="small">Total : 0,00 €</p>
+        </div>
+        <button onclick="goToDeliveryDetails()">Voir le panier</button>
+      </div>
+    </section>
+
+    <section id="cartScreen" class="screen">
+      <button class="back" onclick="showScreen('catalogScreen')">←</button>
+      <h2>Votre panier</h2>
+
+      <div id="cartItems" class="card"></div>
+
+      <div class="card">
+        <label>Adresse de livraison</label>
+        <input id="deliveryInput" type="text" placeholder="Adresse du destinataire" />
+
+        <label>Instructions</label>
+        <textarea id="deliveryNoteInput" placeholder="Ex : sonner, bâtiment B, laisser au gardien..."></textarea>
+
+        <button onclick="goToPaymentFromCart()">Continuer</button>
+      </div>
+    </section>
+
+    <section id="parcelScreen" class="screen">
+      <button class="back" onclick="showScreen('homeScreen')">←</button>
+      <h2>Livraison de colis</h2>
+
+      <div class="card">
+        <label>Point A : adresse de départ</label>
+        <input id="pickupInput" type="text" placeholder="Adresse de départ du colis" />
+
+        <label>Point B : adresse d'arrivée</label>
+        <input id="parcelDeliveryInput" type="text" placeholder="Adresse du destinataire" />
+
+        <label>Type de colis</label>
+        <select id="parcelTypeInput">
+          <option value="">Choisir un type</option>
+          <option>Document</option>
+          <option>Petit colis personnel</option>
+          <option>Colis fragile</option>
+          <option>Colis de valeur</option>
+          <option>Objet électronique</option>
+          <option>Autre</option>
+        </select>
+
+        <label>Description du colis</label>
+        <textarea id="parcelDescriptionInput" placeholder="Ex : dossier, petit cadeau, chargeur..."></textarea>
+
+        <label>Poids estimé</label>
+        <select id="weightInput" onchange="updatePrice(); updateSecureOptionVisibility();">
+          <option value="under3">Moins de 3 kg</option>
+          <option value="over3">Plus de 3 kg</option>
+        </select>
+
+        <div id="secureOptionBlock" class="secure-option">
+          <input id="secureParcelInput" type="checkbox" onchange="updatePrice()" />
+          <label for="secureParcelInput">Ajouter l’option colis sécurisé (+1,50 €)</label>
+        </div>
+        <p id="secureHelpText" class="small">Disponible uniquement pour les colis de moins de 3 kg.</p>
+
+        <button onclick="goToPaymentFromParcel()">Continuer</button>
+      </div>
+    </section>
+
+    <section id="paymentScreen" class="screen">
+      <button class="back" onclick="backFromPayment()">←</button>
+      <h2>Paiement sécurisé</h2>
+      <p class="muted center">Prototype : le paiement est simulé.</p>
+
+      <div class="card">
+        <p><strong>Service choisi :</strong> <span id="summaryService">-</span></p>
+        <p id="summaryMerchantLine"><strong>Commerce :</strong> <span id="summaryMerchant">-</span></p>
+        <p id="summaryCartLine"><strong>Articles :</strong> <span id="summaryCart">0,00 €</span></p>
+        <p><strong>Livraison :</strong> 2,50 €</p>
+        <p><strong>Service NAVIX :</strong> 1,00 €</p>
+        <p id="secureFeeLine" class="hidden"><strong>Option colis sécurisé :</strong> 1,50 €</p>
+        <hr />
+        <p class="total"><strong>Total :</strong> <span id="totalPrice">3,50 €</span></p>
+
+        <button onclick="createMission()">Payer et lancer la mission</button>
+      </div>
+    </section>
+
+    <section id="trackingScreen" class="screen">
+      <button class="back" onclick="showScreen('homeScreen')">←</button>
+      <h2>Suivi de livraison</h2>
+
+      <div class="map">
+        <div id="robotDot" class="robot">🤖</div>
+        <div class="userPoint">📍 Arrivée</div>
+      </div>
+
+      <div class="card">
+        <p class="muted">Robot assigné</p>
+        <h3>NAVIX Robot #01</h3>
+        <p>Temps estimé :</p>
+        <h2 id="eta">15 min</h2>
+        <div class="progress"><div id="progressBar"></div></div>
+      </div>
+
+      <div class="card">
+        <h3>Statut de la mission</h3>
+        <ul id="statusList" class="timeline">
+          <li class="done">Commande confirmée</li>
+          <li>Commande robot envoyée</li>
+          <li>Robot en déplacement</li>
+          <li>Arrivé à destination</li>
+        </ul>
+      </div>
+
+      <div class="card command-card">
+        <h3>Commande envoyée au robot</h3>
+        <pre id="robotCommand">Aucune commande</pre>
+        <p class="small">Cette commande simule le message transmis au robot NAVIX.</p>
+      </div>
+
+      <div class="card security">
+        <h3>Ouverture sécurisée</h3>
+        <p>Le compartiment s’ouvre uniquement après vérification du code.</p>
+        <p>Code de récupération :</p>
+        <div id="recoveryCode" class="pin">----</div>
+        <button onclick="openRobot()">Ouvrir le compartiment</button>
+        <p id="openMessage" class="small"></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
