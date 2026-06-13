@@ -10,6 +10,7 @@ Avec l’essor de la logistique et de la livraison urbaine, les robots terrestre
 Année académique : 2025–2026
 
 ~ Objectifs du projet ~
+
 --Objectifs techniques
 
 	- Concevoir une plateforme mobile stable capable de transporter une charge légère
